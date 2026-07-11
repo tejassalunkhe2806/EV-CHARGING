@@ -10,7 +10,15 @@ import 'react-circular-progressbar/dist/styles.css';
 
 // --- FIREBASE CONFIGURATION ---
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  sendPasswordResetEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword
+} from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -154,6 +162,21 @@ export default function App() {
     }
   };
 
+  // --- NEW: Forgot Password Handler ---
+  const handleForgotPassword = async () => {
+    if (!emailInput) {
+      alert("Please enter your email address in the email field first.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, emailInput);
+      alert("A password reset link has been sent to your email inbox!");
+    } catch (error) {
+      console.error("Reset Error:", error.message);
+      alert(error.message);
+    }
+  };
+
   // --- LOADER (Prevents flashing login screen) ---
   if (isCheckingAuth) {
     return <div className="h-screen w-screen bg-[#0d1117] flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#58a6ff] border-t-transparent rounded-full animate-spin"></div></div>;
@@ -201,6 +224,18 @@ export default function App() {
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Password</label>
                   <input type="password" required value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full bg-[#0d1117] border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#58a6ff]" placeholder="••••••••" />
+                  {/* --- FORGOT PASSWORD BUTTON (only in login mode) --- */}
+                  {authMode === 'login' && (
+                    <div className="text-right mt-1">
+                      <button 
+                        type="button" 
+                        onClick={handleForgotPassword}
+                        className="bg-transparent border-none text-[#58a6ff] cursor-pointer text-xs font-bold p-0 hover:underline"
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <button type="submit" className="w-full bg-[#58a6ff] hover:bg-[#4ea0fa] text-black py-3.5 rounded-xl font-black text-sm mt-2 transition-all">
                   {authMode === 'login' ? 'Sign In Securely' : 'Register New Account'}
@@ -430,7 +465,7 @@ export default function App() {
         <ActivitySquare className="w-4.5 h-4.5 text-[#58a6ff]" />
         <h2 className="text-xs font-black uppercase tracking-widest text-slate-300">Core Electro-Thermal Telemetry Matrix</h2>
       </div>
-
+          
       <section className="flex-1 min-h-0 grid grid-cols-3 grid-rows-2 gap-3">
         {renderLineChart("State of Charge (SOC %)", "n1.soc", "n2.soc", "n3.soc", [0, 100], "#58a6ff", "#ff7b72", "#56d364")}
         {renderLineChart("Loop Current (A)", "n1.current", "n2.current", "n3.current", [0, 40], "#58a6ff", "#ff7b72", "#56d364")}

@@ -105,5 +105,4 @@ setInterval(() => {
 
   io.emit('scada_telemetry_feed', packet);
 }, 100);
-
-httpServer.listen(8080, () => console.log('⚡ SCADA Smart Energy Matrix active on Port 8080'));
+httpServer.listen(process.env.PORT || 8080, () => console.log(`⚡ SCADA Smart Energy Matrix active on Port ${process.env.PORT || 8080}`));
