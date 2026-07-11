@@ -36,7 +36,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-const SOCKET_SERVER_URL = "http://localhost:8080";
+// Empty string = same origin; Vite proxies /socket.io → backend:8080
+const SOCKET_SERVER_URL = "";
 
 // --- ORIGINAL ADMIN COMPONENTS (Untouched) ---
 const TelemetryBar = ({ label, value, max, color, unit }) => {
@@ -112,7 +113,7 @@ export default function App() {
     });
 
     // 2. WebSockets & Timer
-    socketRef.current = io(SOCKET_SERVER_URL, { transports: ['websocket'] });
+    socketRef.current = io(SOCKET_SERVER_URL);
     socketRef.current.on('scada_telemetry_feed', (incomingData) => {
       setHistory((prev) => incomingData.tick === 1 ? [incomingData] : [...prev, incomingData].slice(-150));
     });
